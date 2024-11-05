@@ -1,11 +1,14 @@
-import { useState } from 'react'
-import UpdateElectron from '@/components/update'
+import { useEffect, useState } from 'react'
 import logoVite from './assets/logo-vite.svg'
 import logoElectron from './assets/logo-electron.svg'
 import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  useEffect(() => {
+    postMessage({ payload: 'removeLoading' }, '*')
+  }, [])
+
   return (
     <div className='App'>
       <div className='logo-box'>
@@ -30,7 +33,6 @@ function App() {
         Place static files into the<code>/public</code> folder <img style={{ width: '5em' }} src='./node.svg' alt='Node logo' />
       </div>
 
-      <UpdateElectron />
     </div>
   )
 }

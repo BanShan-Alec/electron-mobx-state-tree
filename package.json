@@ -1,6 +1,6 @@
 {
   "name": "electron-vite-react",
-  "version": "2.2.0",
+  "version": "0.0.0",
   "main": "dist-electron/main/index.js",
   "description": "Electron Vite React boilerplate.",
   "author": "草鞋没号 <308487730@qq.com>",
@@ -15,15 +15,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
-    "preview": "vite preview",
-    "pree2e": "vite build --mode=test",
-    "e2e": "playwright test"
-  },
-  "dependencies": {
-    "electron-updater": "^6.1.8"
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "@playwright/test": "^1.42.1",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@vitejs/plugin-react": "^4.2.1",
@@ -39,5 +33,6 @@
     "vite": "^5.1.5",
     "vite-plugin-electron": "^0.28.4",
     "vite-plugin-electron-renderer": "^0.14.5"
-  }
+  },
+  "packageManager": "pnpm@9.8.0+sha512.8e4c3550fb500e808dbc30bb0ce4dd1eb614e30b1c55245f211591ec2cdf9c611cabd34e1364b42f564bd54b3945ed0f49d61d1bbf2ec9bd74b866fcdc723276"
 }

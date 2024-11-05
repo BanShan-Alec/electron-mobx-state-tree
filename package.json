@@ -24,6 +24,7 @@
     "autoprefixer": "^10.4.18",
     "electron": "^29.1.1",
     "electron-builder": "^24.13.3",
+    "mobx-react-lite": "^4.0.7",
     "postcss": "^8.4.35",
     "postcss-import": "^16.0.1",
     "react": "^18.2.0",
@@ -33,6 +34,23 @@
     "vite": "^5.1.5",
     "vite-plugin-electron": "^0.28.4",
     "vite-plugin-electron-renderer": "^0.14.5"
+  },
+  "sideEffects": false,
+  "peerDependencies": {
+    "electron": ">=24 || >=25 || >=26",
+    "mobx": ">=6.0.0",
+    "mobx-state-tree": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "electron": {
+      "optional": false
+    },
+    "mobx-state-tree": {
+      "optional": false
+    },
+    "mobx": {
+      "optional": true
+    }
   },
   "packageManager": "pnpm@9.8.0+sha512.8e4c3550fb500e808dbc30bb0ce4dd1eb614e30b1c55245f211591ec2cdf9c611cabd34e1364b42f564bd54b3945ed0f49d61d1bbf2ec9bd74b866fcdc723276"
 }

@@ -1,11 +1,11 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import { ipcRenderer } from 'electron';
 
 const electronAPI = {
-    createWindow: () => ipcRenderer.send('create-window')
-}
+    createWindow: () => ipcRenderer.send('create-window'),
+};
 
-contextBridge.exposeInMainWorld('electronAPI', electronAPI)
+type TElectronAPI = typeof electronAPI;
 
-type TElectronAPI = typeof electronAPI
+export type { TElectronAPI };
 
-export type { TElectronAPI }
+export { electronAPI };

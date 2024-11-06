@@ -1,6 +1,6 @@
 {
     "name": "electron-mst",
-    "version": "0.0.1",
+    "version": "0.0.2-20241106-150845-59f49c2",
     "main": "dist-electron/main/index.js",
     "description": "Synchronization status across multiple electron processes, powered by mobx-state-tree",
     "author": "BanShan",

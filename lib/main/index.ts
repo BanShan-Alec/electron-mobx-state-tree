@@ -21,8 +21,9 @@ export const createStore = <T extends IModelType<any, any>>(
     options?: any
 ) => {
     try {
-        if (storeObserverMap.has(store.name) || storeInstanceMap.has(store.name)) {
-            throw new Error('Store name duplication!');
+        if (storeInstanceMap.has(store.name)) {
+            // throw new Error('Store name duplication!');
+            return storeInstanceMap.get(store.name);
         }
 
         const storeInstance = store.create(snapshot);

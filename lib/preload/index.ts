@@ -21,6 +21,9 @@ const ElectronMST = {
             ipcRenderer.off(patchChannel, handlePatchEvent);
         };
     },
+    destroy: (storeName: string) => {
+        ipcRenderer.send(`${IPC_CHANNEL_NAME}:destroy`, { storeName });
+    },
 };
 
 type ElectronMSTType = typeof ElectronMST;

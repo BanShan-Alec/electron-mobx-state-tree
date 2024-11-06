@@ -1,5 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron';
 import { electronAPI } from './api';
+import { exposeBridge } from '../../lib/preload';
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
@@ -22,3 +23,5 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 });
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
+
+exposeBridge();

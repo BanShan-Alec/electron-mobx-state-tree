@@ -4,8 +4,11 @@ import logoVite from './assets/logo-vite.svg';
 import logoElectron from './assets/logo-electron.svg';
 import './App.css';
 import { observer } from 'mobx-react-lite';
-import { home$ } from './store/home';
+import { createStore } from '../lib/render';
+import { HomeStore } from './store/home';
+// import { home$ } from './store/home';
 //私有常量
+const home$ = createStore(HomeStore, { count: 0 });
 
 //可抽离的逻辑处理函数/组件
 
@@ -53,7 +56,13 @@ let App = (props: IProps) => {
             </p>
             <div className="card">
                 <code>{JSON.stringify(user, null, 2)}</code>
-                <button onClick={() => updateUser()}>Update User</button>
+                <button
+                    onClick={() => {
+                        updateUser();
+                    }}
+                >
+                    Update User
+                </button>
             </div>
         </div>
     );

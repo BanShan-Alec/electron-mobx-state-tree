@@ -1,3 +1,4 @@
+import { createStore } from '../../lib/render';
 import { types } from 'mobx-state-tree';
 
 const HomeStore = types
@@ -25,14 +26,12 @@ const HomeStore = types
             },
             updateUser() {
                 // uuid
-                ctx.user.name = 'hello_' + URL.createObjectURL(new Blob()).split('/')[3];
+                ctx.user.name = 'hello_' + URL.createObjectURL(new Blob());
                 ctx.user.age = parseInt((Math.random() * 100).toFixed(0), 10);
             },
         };
     });
 
-const home$ = HomeStore.create({
-    count: 0,
-});
+// const home$ = createStore(HomeStore, { count: 0 });
 
-export { HomeStore, home$ };
+export { HomeStore };

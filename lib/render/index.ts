@@ -1,4 +1,22 @@
-import { applyPatch, applySnapshot, getChildType, getPath, getType, IModelType, isModelType } from 'mobx-state-tree';
+import { isRenderer } from '../index.js';
+import {
+    applyPatch,
+    applySnapshot,
+    getChildType,
+    getPath,
+    getSnapshot,
+    getType,
+    IModelType,
+    isModelType,
+} from 'mobx-state-tree';
+
+declare global {
+    interface Window {
+        ElectronMST: import('../preload').ElectronMSTType;
+    }
+
+    var ElectronMST: import('../preload').ElectronMSTType;
+}
 
 const getStoreInstanceHandler = (storeName: string): ProxyHandler<any> => ({
     get(target, key, receiver) {
@@ -31,8 +49,8 @@ const getStoreInstanceHandler = (storeName: string): ProxyHandler<any> => ({
     },
 });
 
-const init = async (storeName: string, storeInstance: any) => {
-    const snapshot = await window.ElectronMST.register(storeName);
+const initStore = async (storeName: string, storeInstance: any) => {
+    const snapshot = await window.ElectronMST.register(storeName, getSnapshot(storeInstance));
     if (snapshot) applySnapshot(storeInstance, snapshot);
 
     const offPatchListener = window.ElectronMST.onPatchChange(storeName, (patch: any) => {
@@ -49,16 +67,23 @@ export const createStore = <T extends IModelType<any, any>>(
     options?: any
 ) => {
     try {
-        if (typeof window?.ElectronMST !== 'object') {
+        if (!isRenderer()) {
+            throw new Error('This module should be used in renderer process!');
+        }
+        if (typeof window.ElectronMST !== 'object') {
             throw new Error('ElectronMSTBridge is not available! Please check preload script.');
         }
         const storeInstance = store.create(snapshot);
 
-        init(store.name, storeInstance);
+        initStore(store.name, storeInstance);
 
         return new Proxy(storeInstance, getStoreInstanceHandler(store.name)) as typeof storeInstance;
     } catch (error: any) {
         console.error(`[createStore error] ${error?.message}`);
         throw error;
     }
+};
+
+export const destroyStore = (storeName: string) => {
+    window.ElectronMST.destroy(storeName);
 };

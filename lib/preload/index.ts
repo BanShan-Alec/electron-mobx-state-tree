@@ -1,11 +1,14 @@
 import { ipcRenderer, contextBridge, IpcRendererEvent } from 'electron';
-import { IPC_CHANNEL_NAME } from '../constant';
+import { IPC_CHANNEL_NAME } from '../index.js';
 import { ISerializedActionCall } from 'mobx-state-tree';
 
 const ElectronMST = {
-    register: async (storeName: string) => {
-        const snapshot = await ipcRenderer.invoke(`${IPC_CHANNEL_NAME}:register`, { storeName });
-        return snapshot;
+    register: async (storeName: string, curSnapshot?: any) => {
+        const newSnapshot = await ipcRenderer.invoke(`${IPC_CHANNEL_NAME}:register`, {
+            storeName,
+            snapshot: curSnapshot,
+        });
+        return newSnapshot;
     },
     callAction: (storeName: string, actionObj: ISerializedActionCall) => {
         return ipcRenderer.send(`${IPC_CHANNEL_NAME}:callAction-${storeName}`, { actionObj });

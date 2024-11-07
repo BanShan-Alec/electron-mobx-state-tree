@@ -1,22 +1,32 @@
-# electron-vite-react
+# Electron-MST
 
-[![awesome-vite](https://awesome.re/mentioned-badge.svg)](https://github.com/vitejs/awesome-vite)
-![GitHub stars](https://img.shields.io/github/stars/caoxiemeihao/vite-react-electron?color=fa6470)
-![GitHub issues](https://img.shields.io/github/issues/caoxiemeihao/vite-react-electron?color=d8b22d)
-![GitHub license](https://img.shields.io/github/license/caoxiemeihao/vite-react-electron)
-[![Required Node.JS >= 14.18.0 || >=16.0.0](https://img.shields.io/static/v1?label=node&message=14.18.0%20||%20%3E=16.0.0&logo=node.js&color=3f893e)](https://nodejs.org/about/releases)
+`electron-mst` is a end-to-end electron state management to synchronization status across multiple electron processes, powered by mobx-state-tree.
 
-English | [简体中文](README.zh-CN.md)
+You can use `electron-mst` with a a simple and elegant way like using mobx. 
+
+You also can use `mobx-state-tree` together with React, or with any other view library.
+
+## ✨Installation
+
+> Generally, your packageManager you help auto install the peerDependencies. (electron & mobx-state-tree)
+
+```sh
+# with yarn
+yarn add electron-redux
+
+# with pnpm
+pnpm install electron-redux
+```
 
 ## 👀 Overview
 
 📦 Ready out of the box  
-🎯 Based on the official [template-react-ts](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts), project structure will be familiar to you  
-🌱 Easily extendable and customizable  
-💪 Supports Node.js API in the renderer process  
+🎯 Based on the official [mobx-state-tree](https://mobx-state-tree.js.org/), api will be familiar to you if you have used MST
+🌱 High cohesion & Low coupling; Highly readable  
+💪 Cross-process communication is aided by Electron's native ipc channel, which supports preload's sandbox mode by default  
 🔩 Supports C/C++ native addons  
 🐞 Debugger configuration included  
-🖥 Easy to implement multiple windows  
+🖥 Supports the creation of multiple MST stores and MST Store nesting 
 
 ## 🛫 Quick Setup
 
@@ -34,58 +44,166 @@ npm install
 npm run dev
 ```
 
-## 🐞 Debug
+## 🌱 Friendly Demo
 
-![electron-vite-react-debug.gif](/electron-vite-react-debug.gif)
+> demo boilerplate power by `electron-vite`
 
-## 📂 Directory structure
+```sh
+# clone the project
+git clone https://github.com/BanShan-Alec/electron-mobx-state-tree
 
-Familiar React application structure, just with `electron` folder on the top :wink:  
-*Files in this folder will be separated from your React application and built into `dist-electron`*  
+# enter the project directory
+cd electron-mobx-state-tree
 
-```tree
-├── electron                                 Electron-related code
-│   ├── main                                 Main-process source code
-│   └── preload                              Preload-scripts source code
-│
-├── release                                  Generated after production build, contains executables
-│   └── {version}
-│       ├── {os}-{os_arch}                   Contains unpacked application executable
-│       └── {app_name}_{version}.{ext}       Installer for the application
-│
-├── public                                   Static assets
-└── src                                      Renderer source code, your React application
+# install dependency
+pnpm install
+
+# try it by yourself
+pnpm run dev
 ```
 
-<!--
-## 🚨 Be aware
 
-This template integrates Node.js API to the renderer process by default. If you want to follow **Electron Security Concerns** you might want to disable this feature. You will have to expose needed API by yourself.  
 
-To get started, remove the option as shown below. This will [modify the Vite configuration and disable this feature](https://github.com/electron-vite/vite-plugin-electron-renderer#config-presets-opinionated).
+## ⚙️Documentation
 
-```diff
-# vite.config.ts
+### Basic Example
 
-export default {
-  plugins: [
-    ...
--   // Use Node.js API in the Renderer-process
--   renderer({
--     nodeIntegration: true,
--   }),
-    ...
-  ],
-}
+#### Step0: expose electron-mst bridge
+
+```ts
+// electron/preload/index.ts
+import { exposeMSTBridge } from 'electron-mst/preload';
+
+exposeMSTBridge();
 ```
--->
 
-## 🔧 Additional features
+t
 
-1. electron-updater 👉 [see docs](src/components/update/README.md)
-1. playwright
+#### Step1: decalre a model
+
+```ts
+// shared/store/user.ts
+import { createStore } from 'electron-mst';
+import { types } from 'mobx-state-tree';
+
+export const UserStore = types
+    .model({
+        name: types.string,
+        age: types.number,
+    })
+    .views((ctx) => {
+        return {
+            get isAdult() {
+                return ctx.age >= 18;
+            },
+        };
+    })
+    .actions((ctx) => {
+        return {
+            updateName(name: string) {
+                ctx.name = name;
+            },
+            updateAge(age: number) {
+                ctx.age = age;
+            },
+        };
+    });
+
+export const user$ = createStore(UserStore, {
+    name: 'Jack',
+    age: 18,
+});
+```
+
+#### Step2: init sdk in main process
+
+```ts
+// electron/main/index.ts
+import { initMST } from 'electron-mst/main';
+import { UserStore } from '../../src/store/user';
+
+initMST([
+    {
+        store: UserStore,
+    },
+]);
+```
+
+#### Step3: use storeInstance in renderer
+
+```tsx
+// src/App.tsx
+import React from 'react';
+import { useEffect, useState } from 'react';
+import logoVite from './assets/logo-vite.svg';
+import logoElectron from './assets/logo-electron.svg';
+import './App.css';
+import { observer } from 'mobx-react-lite';
+import { home$ } from './store/home';
+import { user$ } from './store/user';
+//私有常量
+
+//可抽离的逻辑处理函数/组件
+
+let App = (props: IProps) => {
+    //变量声明、解构
+    const {} = props;
+    const { age, updateAge } = user$;
+    //组件状态
+
+    //网络IO
+
+    //数据转换
+
+    //逻辑处理函数
+    const handleCreateWindow = (e: any) => {
+        // self-realization...
+    };
+
+    //组件Effect
+    useEffect(() => {
+        console.log("age changed", age)
+    }, [age]);
+
+    //组件渲染
+    return (
+        <div className="card">
+            <code>{JSON.stringify(user$, null, 2)}</code>
+            <button
+                onClick={() => {
+                    updateAge(age + 2);
+                }}
+                >
+                Update User
+            </button>
+        </div>
+    );
+};
+
+//props类型定义
+interface IProps {}
+
+App = observer(App);
+export default App;
+
+```
+
+Step4: new another window to view the user$
+
+> You can view the user$ state has synchronization between two Renderer
+
+![image-20241107224011472](https://raw.githubusercontent.com/BanShan-Alec/electron-mobx-state-tree/refs/heads/README.assets/basic-demo.png)
+
+### More Example
+
+#### Watch State Change In Main Process
+
+TODO
+
+## 🎯Realize & Design
+
+TODO
 
 ## ❔ FAQ
 
-- [C/C++ addons, Node.js modules - Pre-Bundling](https://github.com/electron-vite/vite-plugin-electron-renderer#dependency-pre-bundling)
-- [dependencies vs devDependencies](https://github.com/electron-vite/vite-plugin-electron-renderer#dependencies-vs-devdependencies)
+TODO

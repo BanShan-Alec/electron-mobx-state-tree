@@ -5,7 +5,6 @@ import {
     getChildType,
     getPath,
     getSnapshot,
-    getType,
     IModelType,
     isModelType,
 } from 'mobx-state-tree';

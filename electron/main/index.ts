@@ -3,13 +3,23 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import os from 'node:os';
-import { createStore } from '../../lib/main';
-import { HomeStore } from '../../src/store/home';
+import { getStoreInstance, initMST } from '../../lib/main/index.js';
+import { HomeStore, HomeStoreSnapshot } from '../../src/store/home';
+import { autorun, reaction } from 'mobx';
+import { UserStore } from '../../src/store/user';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const home$ = createStore(HomeStore, { count: 0 });
-console.log('abc', home$);
+initMST([
+    {
+        store: HomeStore,
+        snapshot: HomeStoreSnapshot,
+        createStoreBefore: true,
+    },
+    {
+        store: UserStore,
+    },
+]);
 
 // The built directory structure
 //
@@ -83,7 +93,27 @@ async function createWindow() {
     // update(win)
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+    createWindow();
+    // Test Mobx State Tree
+    const home$ = getStoreInstance(HomeStore);
+
+    reaction(
+        () => home$.count,
+        (newVal, oldVal) => {
+            console.log(`home.count oldVal ${oldVal} -> newVal ${newVal}`);
+        },
+        {
+            fireImmediately: true,
+        }
+    );
+    autorun(() => {
+        console.log('home.user.age', home$.user.age);
+        if (home$.user.age > 30) {
+            home$.user.updateName('Tom');
+        }
+    });
+});
 
 app.on('window-all-closed', () => {
     win = null;

@@ -1,15 +1,14 @@
-import { createStore } from '../../lib/render';
+import { createStore } from '../../lib';
 import { types } from 'mobx-state-tree';
+import { UserStore } from './user';
 
 const HomeStore = types
     .model('home', {
         count: types.number,
         user: types.optional(
-            types.model({
-                name: types.string,
-                age: types.number,
-            }),
-            { name: 'Alec', age: 20 }
+            // 嵌套models
+            UserStore,
+            { name: 'Alec', age: 20, sex: 0 }
         ),
     })
     .views((ctx) => {
@@ -24,14 +23,11 @@ const HomeStore = types
             add() {
                 ctx.count = ctx.count + 1;
             },
-            updateUser() {
-                // uuid
-                ctx.user.name = 'hello_' + URL.createObjectURL(new Blob());
-                ctx.user.age = parseInt((Math.random() * 100).toFixed(0), 10);
-            },
         };
     });
 
-// const home$ = createStore(HomeStore, { count: 0 });
+const HomeStoreSnapshot: Parameters<(typeof HomeStore)['create']>[0] = { count: 0 };
 
-export { HomeStore };
+const home$ = createStore(HomeStore, HomeStoreSnapshot);
+
+export { HomeStore, HomeStoreSnapshot, home$ };

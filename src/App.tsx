@@ -4,18 +4,17 @@ import logoVite from './assets/logo-vite.svg';
 import logoElectron from './assets/logo-electron.svg';
 import './App.css';
 import { observer } from 'mobx-react-lite';
-import { createStore } from '../lib/render';
-import { HomeStore } from './store/home';
-// import { home$ } from './store/home';
+import { home$ } from './store/home';
+import { user$ } from './store/user';
 //私有常量
-const home$ = createStore(HomeStore, { count: 0 });
 
 //可抽离的逻辑处理函数/组件
 
 let App = (props: IProps) => {
     //变量声明、解构
     const {} = props;
-    const { count, add, isEven, user, updateUser } = home$;
+    const { count, add, isEven, user } = home$;
+    const { age, updateAge } = user$;
     //组件状态
 
     //网络IO
@@ -58,10 +57,20 @@ let App = (props: IProps) => {
                 <code>{JSON.stringify(user, null, 2)}</code>
                 <button
                     onClick={() => {
-                        updateUser();
+                        home$.user.updateAge(user.age + 10);
                     }}
                 >
                     Update User
+                </button>
+            </div>
+            <div className="card">
+                <code>{JSON.stringify(user$, null, 2)}</code>
+                <button
+                    onClick={() => {
+                        updateAge(age + 2);
+                    }}
+                >
+                    Update Another User
                 </button>
             </div>
         </div>

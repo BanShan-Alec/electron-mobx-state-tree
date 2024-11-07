@@ -1,6 +1,6 @@
 {
     "name": "electron-mst",
-    "version": "0.0.2-20241107-213530-5085b43",
+    "version": "0.0.2",
     "description": "Synchronization status across multiple electron processes, powered by mobx-state-tree",
     "author": "BanShan<627649674@qq.com>",
     "license": "MIT",
@@ -15,7 +15,7 @@
         "renderer",
         "preload"
     ],
-    "main": "./dist/index.cjs",
+    "main": "./dist-electron/main/index.js",
     "module": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "keywords": [
@@ -50,7 +50,7 @@
         "autoprefixer": "^10.4.18",
         "electron": "^29.1.1",
         "electron-builder": "^24.13.3",
-        "electron-mst": "0.0.2-20241107-213530-5085b43",
+        "electron-mst": "0.0.2-20241107-214730-fac8f95",
         "mobx-react-lite": "^4.0.7",
         "postcss": "^8.4.35",
         "postcss-import": "^16.0.1",

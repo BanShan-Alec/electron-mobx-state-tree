@@ -1,0 +1,6 @@
+{
+    "internal": true,
+    "main": "../dist/main.cjs",
+    "module": "../dist/main.js",
+    "types": "../dist/main.d.ts"
+}

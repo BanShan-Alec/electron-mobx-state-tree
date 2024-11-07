@@ -1,0 +1,6 @@
+{
+    "internal": true,
+    "main": "../dist/render.cjs",
+    "module": "../dist/render.js",
+    "types": "../dist/render.d.ts"
+}

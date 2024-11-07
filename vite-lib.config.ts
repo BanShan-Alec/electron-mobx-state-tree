@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
+import pkg from './package.json';
 
 // https://vitejs.dev/config/
 export default defineConfig(() => {
-    const external = ['electron', 'mobx', 'mobx-state-tree'];
+    const external = Object.keys(pkg.peerDependencies || {});
 
     return {
         plugins: [dts({ rollupTypes: true })],

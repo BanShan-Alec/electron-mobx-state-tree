@@ -10,34 +10,14 @@
         }
     },
     "files": [
-        "dist"
+        "dist",
+        "main",
+        "renderer",
+        "preload"
     ],
-    "exports": {
-        ".": {
-            "module": "./dist/index.js",
-            "import": "./dist/index.js",
-            "require": "./dist/index.cjs",
-            "types": "./dist/index.d.ts"
-        },
-        "./main": {
-            "module": "./dist/main.js",
-            "import": "./dist/main.js",
-            "require": "./dist/main.cjs",
-            "types": "./dist/main.d.ts"
-        },
-        "./render": {
-            "module": "./dist/render.js",
-            "import": "./dist/render.js",
-            "require": "./dist/render.cjs",
-            "types": "./dist/render.d.ts"
-        },
-        "./preload": {
-            "module": "./dist/preload.js",
-            "import": "./dist/preload.js",
-            "require": "./dist/preload.cjs",
-            "types": "./dist/preload.d.ts"
-        }
-    },
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "keywords": [
         "electron",
         "mst",
@@ -70,7 +50,7 @@
         "autoprefixer": "^10.4.18",
         "electron": "^29.1.1",
         "electron-builder": "^24.13.3",
-        "electron-mst": "0.0.2-20241106-150845-59f49c2",
+        "electron-mst": "0.0.2-20241107-213530-5085b43",
         "mobx-react-lite": "^4.0.7",
         "postcss": "^8.4.35",
         "postcss-import": "^16.0.1",

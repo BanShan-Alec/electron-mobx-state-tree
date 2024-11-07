@@ -1,20 +1,8 @@
 import { ipcMain, type WebContents } from 'electron';
-import { IPC_CHANNEL_NAME, isRenderer } from '../index.js';
+import { IPC_CHANNEL_NAME, isRenderer } from '.';
 import { applyAction, getSnapshot, IAnyModelType, IModelType, onPatch } from 'mobx-state-tree';
 
-declare global {
-    interface ElectronMSTMainType {
-        // Map的key都是取store.name
-        storeMap: Map<string, IAnyModelType>;
-        storeObserverMap: Map<string, WebContents[]>;
-        storeInstanceMap: Map<string, any>;
-        storeDestroyMap: Map<string, () => void>;
-    }
-
-    var ElectronMSTMain: ElectronMSTMainType;
-}
-
-interface InitStoreOptionsType {
+export interface InitStoreOptionsType {
     store: IAnyModelType;
     snapshot?: any;
     observers?: WebContents[];
@@ -25,10 +13,10 @@ export const initMST = (options: InitStoreOptionsType[]) => {
     if (isRenderer()) throw new Error('This module should be used in main process!');
 
     global.ElectronMSTMain = {
-        storeMap: new Map<string, IAnyModelType>(),
-        storeObserverMap: new Map<string, WebContents[]>(),
-        storeInstanceMap: new Map<string, any>(),
-        storeDestroyMap: new Map<string, () => void>(),
+        storeMap: new Map(),
+        storeObserverMap: new Map(),
+        storeInstanceMap: new Map(),
+        storeDestroyMap: new Map(),
     };
 
     options.forEach(({ store, createStoreBefore = false, snapshot, observers }) => {
@@ -88,14 +76,14 @@ export const createStore = <T extends IModelType<any, any>>(
         const storeInstance = store.create(snapshot);
         const handleCallAction = (event: any, data: any) => {
             // TODO DEBUG
-            console.log('callAction', data.actionObj);
+            // console.log('callAction', data.actionObj);
 
             if (!data.actionObj) return;
             applyAction(storeInstance, data.actionObj);
         };
         const handlePatch = (patch: any) => {
             // TODO DEBUG
-            console.log('patch', patch);
+            // console.log('patch', patch);
 
             const observers = ElectronMSTMain.storeObserverMap.get(store.name);
 

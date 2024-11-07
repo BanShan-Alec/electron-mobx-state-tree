@@ -1,5 +1,5 @@
 import { ipcRenderer, contextBridge, IpcRendererEvent } from 'electron';
-import { IPC_CHANNEL_NAME } from '../index.js';
+import { IPC_CHANNEL_NAME } from '.';
 import { ISerializedActionCall } from 'mobx-state-tree';
 
 const ElectronMST = {

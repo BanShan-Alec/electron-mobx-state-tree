@@ -1,4 +1,4 @@
-import { isRenderer } from '../index.js';
+import { isRenderer } from '.';
 import {
     applyPatch,
     applySnapshot,
@@ -8,14 +8,6 @@ import {
     IModelType,
     isModelType,
 } from 'mobx-state-tree';
-
-declare global {
-    interface Window {
-        ElectronMST: import('../preload').ElectronMSTType;
-    }
-
-    var ElectronMST: import('../preload').ElectronMSTType;
-}
 
 const getStoreInstanceHandler = (storeName: string): ProxyHandler<any> => ({
     get(target, key, receiver) {
@@ -27,7 +19,7 @@ const getStoreInstanceHandler = (storeName: string): ProxyHandler<any> => ({
         }
         if (typeof value === 'function' && !!value._isMSTAction) {
             // TODO DEBUG
-            console.log('action', key, !!value._isMSTAction);
+            // console.log('action', key, !!value._isMSTAction);
 
             return (...args: any) => {
                 try {

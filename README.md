@@ -192,7 +192,7 @@ Step4: new another window to view the user$
 
 > You can view the user$ state has synchronization between two Renderer
 
-![image-20241107224011472](https://raw.githubusercontent.com/BanShan-Alec/electron-mobx-state-tree/refs/heads/README.assets/basic-demo.png)
+![basic-demo](https://raw.githubusercontent.com/BanShan-Alec/electron-mobx-state-tree/main/README.assets/basic-demo.png)
 
 ### More Example
 

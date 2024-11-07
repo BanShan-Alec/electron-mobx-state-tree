@@ -1,4 +1,4 @@
-import { createStore } from '../../lib';
+import { createStore } from 'electron-mst';
 import { types } from 'mobx-state-tree';
 
 export enum EUserSex {

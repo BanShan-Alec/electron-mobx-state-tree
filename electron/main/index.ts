@@ -3,9 +3,9 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import os from 'node:os';
-import { getStoreInstance, initMST } from '../../lib/main.js';
-import { HomeStore, HomeStoreSnapshot } from '../../src/store/home';
+import { getStoreInstance, initMST } from 'electron-mst/main';
 import { autorun, reaction } from 'mobx';
+import { HomeStore, HomeStoreSnapshot } from '../../src/store/home';
 import { UserStore } from '../../src/store/user';
 
 const require = createRequire(import.meta.url);

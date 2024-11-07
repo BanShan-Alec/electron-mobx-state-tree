@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v0.0.2-20241107-213530-5085b43
+
+[compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.0.2-20241106-150845-59f49c2...v0.0.2-20241107-213530-5085b43)
+
+### 🚀 Enhancements
+
+- 新增onPatchChange ([d7b7fe4](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/d7b7fe4))
+- 新增destroyStore ([2c7ae12](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/2c7ae12))
+- 优化主进程initMST的逻辑；简化sdk调用的复杂度 ([3dbbb3f](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/3dbbb3f))
+- 向外暴露createStore ([20ce5ce](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/20ce5ce))
+- 补充多Store demo ([652cdd4](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/652cdd4))
+- 完成打包Lib逻辑 ([5085b43](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/5085b43))
+
+### 🩹 Fixes
+
+- 修复store嵌套，action不同步的问题；修复proxy后JSON序列化失效 ([c2e69e8](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/c2e69e8))
+
+### ❤️ Contributors
+
+- 半山Alec <627649674@qq.com>
+
 ## v0.0.2-20241106-150845-59f49c2
 
 

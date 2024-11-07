@@ -1,22 +1,67 @@
 {
     "name": "electron-mst",
-    "version": "0.0.2-20241106-150845-59f49c2",
-    "main": "dist-electron/main/index.js",
+    "version": "0.0.2-20241107-213530-5085b43",
     "description": "Synchronization status across multiple electron processes, powered by mobx-state-tree",
-    "author": "BanShan",
+    "author": "BanShan<627649674@qq.com>",
     "license": "MIT",
-    "private": true,
     "debug": {
         "env": {
             "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"
         }
     },
+    "files": [
+        "dist"
+    ],
+    "exports": {
+        ".": {
+            "module": "./dist/index.js",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs",
+            "types": "./dist/index.d.ts"
+        },
+        "./main": {
+            "module": "./dist/main.js",
+            "import": "./dist/main.js",
+            "require": "./dist/main.cjs",
+            "types": "./dist/main.d.ts"
+        },
+        "./render": {
+            "module": "./dist/render.js",
+            "import": "./dist/render.js",
+            "require": "./dist/render.cjs",
+            "types": "./dist/render.d.ts"
+        },
+        "./preload": {
+            "module": "./dist/preload.js",
+            "import": "./dist/preload.js",
+            "require": "./dist/preload.cjs",
+            "types": "./dist/preload.d.ts"
+        }
+    },
+    "keywords": [
+        "electron",
+        "mst",
+        "mobx",
+        "mobx-state-tree",
+        "synchronization",
+        "status",
+        "state",
+        "react"
+    ],
+    "publishConfig": {
+        "registry": "https://registry.npmjs.org/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/BanShan-Alec/electron-mobx-state-tree.git"
+    },
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "tsc && vite build && electron-builder",
+        "build": "tsc && vite build --config vite.config.ts && electron-builder",
         "preview": "vite preview",
-        "build:lib": "vite build --config vite-lib.config.ts"
+        "build:lib": "vite build --config vite-lib.config.ts",
+        "pub": "npm publish --access=public"
     },
     "devDependencies": {
         "@types/react": "^18.2.64",
@@ -25,6 +70,7 @@
         "autoprefixer": "^10.4.18",
         "electron": "^29.1.1",
         "electron-builder": "^24.13.3",
+        "electron-mst": "0.0.2-20241106-150845-59f49c2",
         "mobx-react-lite": "^4.0.7",
         "postcss": "^8.4.35",
         "postcss-import": "^16.0.1",

@@ -1,11 +1,17 @@
-import { applyPatch, applySnapshot, getPath, IModelType } from 'mobx-state-tree';
-import { IPC_CHANNEL_NAME } from '../constant';
+import { applyPatch, applySnapshot, getChildType, getPath, getType, IModelType, isModelType } from 'mobx-state-tree';
 
 const getStoreInstanceHandler = (storeName: string): ProxyHandler<any> => ({
     get(target, key, receiver) {
         const value = Reflect.get(target, key, receiver);
-        // if (!!value._isMSTAction) {
-        if (typeof value === 'function') {
+
+        if (typeof value === 'object' && isModelType(getChildType(target, key as string))) {
+            // 递归代理，使得嵌套的 model 也能触发 action
+            return new Proxy(value, getStoreInstanceHandler(storeName));
+        }
+        if (typeof value === 'function' && !!value._isMSTAction) {
+            // TODO DEBUG
+            console.log('action', key, !!value._isMSTAction);
+
             return (...args: any) => {
                 try {
                     const res = value.apply(this, args);

@@ -6,45 +6,33 @@ You can use `electron-mst` with a a simple and elegant way like using mobx.
 
 You also can use `mobx-state-tree` together with React, or with any other view library.
 
+
+
 ## ✨Installation
 
 > Generally, your packageManager you help auto install the peerDependencies. (electron & mobx-state-tree)
 
 ```sh
 # with yarn
-yarn add electron-redux
+yarn add electron-mst
 
 # with pnpm
-pnpm install electron-redux
+pnpm install electron-mst
 ```
+
+
 
 ## 👀 Overview
 
 📦 Ready out of the box  
-🎯 Based on the official [mobx-state-tree](https://mobx-state-tree.js.org/), api will be familiar to you if you have used MST
+🎯 Based on the official [mobx-state-tree](https://mobx-state-tree.js.org/), api will be familiar to you if you have used MST  
 🌱 High cohesion & Low coupling; Highly readable  
-💪 Cross-process communication is aided by Electron's native ipc channel, which supports preload's sandbox mode by default  
-🔩 Supports C/C++ native addons  
-🐞 Debugger configuration included  
+💪 Inter-Process Communication is aided by Electron's native ipc channel, which supports preload's sandbox mode by default  
 🖥 Supports the creation of multiple MST stores and MST Store nesting 
 
-## 🛫 Quick Setup
 
-```sh
-# clone the project
-git clone https://github.com/electron-vite/electron-vite-react.git
 
-# enter the project directory
-cd electron-vite-react
-
-# install dependency
-npm install
-
-# develop
-npm run dev
-```
-
-## 🌱 Friendly Demo
+## 🌱 React Demo
 
 > demo boilerplate power by `electron-vite`
 
@@ -77,9 +65,7 @@ import { exposeMSTBridge } from 'electron-mst/preload';
 exposeMSTBridge();
 ```
 
-t
-
-#### Step1: decalre a model
+#### Step1: decalre a model & create store
 
 ```ts
 // shared/store/user.ts
@@ -120,7 +106,7 @@ export const user$ = createStore(UserStore, {
 ```ts
 // electron/main/index.ts
 import { initMST } from 'electron-mst/main';
-import { UserStore } from '../../src/store/user';
+import { UserStore } from '@/shared/store/user';
 
 initMST([
     {
@@ -139,38 +125,27 @@ import logoVite from './assets/logo-vite.svg';
 import logoElectron from './assets/logo-electron.svg';
 import './App.css';
 import { observer } from 'mobx-react-lite';
-import { home$ } from './store/home';
-import { user$ } from './store/user';
-//私有常量
-
-//可抽离的逻辑处理函数/组件
+import { user$ } from '@/shared/store/user';
 
 let App = (props: IProps) => {
-    //变量声明、解构
     const {} = props;
     const { age, updateAge } = user$;
-    //组件状态
 
-    //网络IO
-
-    //数据转换
-
-    //逻辑处理函数
     const handleCreateWindow = (e: any) => {
         // self-realization...
     };
 
-    //组件Effect
     useEffect(() => {
+        // watch state change in React
         console.log("age changed", age)
     }, [age]);
 
-    //组件渲染
     return (
         <div className="card">
             <code>{JSON.stringify(user$, null, 2)}</code>
             <button
                 onClick={() => {
+                    // invoke action
                     updateAge(age + 2);
                 }}
                 >
@@ -180,7 +155,6 @@ let App = (props: IProps) => {
     );
 };
 
-//props类型定义
 interface IProps {}
 
 App = observer(App);
@@ -190,15 +164,65 @@ export default App;
 
 Step4: new another window to view the user$
 
-> You can view the user$ state has synchronization between two Renderer
+> You can view the user$ state has sync automatically between two Renderer
 
 ![basic-demo](https://raw.githubusercontent.com/BanShan-Alec/electron-mobx-state-tree/main/README.assets/basic-demo.png)
 
+
+
 ### More Example
 
-#### Watch State Change In Main Process
+> The Basic Example show us how to init `electron-mst` & create a mst stroe & use store in renderer.
+>
+> If I want to use mst store in main process .What should I do?
 
-TODO
+#### Use In Main Process
+
+> Base on the `basic Example`，you just need to change the `step2`
+
+```ts
+// electron/main/index.ts
+import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { initMST, getStoreInstance } from 'electron-mst/main';
+import { UserStore } from '@/shared/store/user';
+import { autorun, reaction } from 'mobx';
+
+initMST([
+    {
+        store: UserStore,
+        snapshot: {
+            name: 'Jack',
+            age: 18,
+        },
+        createStoreBefore: true,
+    },
+]);
+
+function createWindow() {...}
+
+app.whenReady().then(() => {
+    createWindow();
+    // Get StoreInstance (after intMST done)
+	const user$ = getStoreInstance(UserStore);
+    
+	// watch store change
+    reaction(
+        () => user$.age,
+        (newVal, oldVal) => {
+            console.log(`user.count oldVal ${oldVal} -> newVal ${newVal}`);
+        }
+    );
+    autorun(() => {
+        console.log('user$.age', user$.age);
+        if (user$.age > 30) {
+            // invoke action, will auto sync to other process
+            user$.updateName('Tom');
+        }
+    });
+});
+```
+
+
 
 ## 🎯Realize & Design
 

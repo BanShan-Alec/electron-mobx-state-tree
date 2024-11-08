@@ -1,6 +1,51 @@
 # Changelog
 
 
+## v0.1.0
+
+[compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.0.2...v0.1.0)
+
+### 🚀 Enhancements
+
+- 完善demo ([99d44ea](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/99d44ea))
+
+### 📖 Documentation
+
+- 更新文档 ([8ac89d8](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/8ac89d8))
+- 更新 readme ([92a078c](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/92a078c))
+
+### 🏡 Chore
+
+- **release:** V0.0.2-20241107-213530-5085b43 ([062f6e7](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/062f6e7))
+- 解决发包后的类型提示问题 ([fac8f95](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/fac8f95))
+- **release:** V0.0.2 ([2d9c4a8](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/2d9c4a8))
+
+### ❤️ Contributors
+
+- 半山Alec <627649674@qq.com>
+
+## v0.0.4
+
+[compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.0.2...v0.0.4)
+
+### 🚀 Enhancements
+
+- 完善demo ([99d44ea](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/99d44ea))
+
+### 📖 Documentation
+
+- 更新文档 ([8ac89d8](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/8ac89d8))
+
+### 🏡 Chore
+
+- **release:** V0.0.2-20241107-213530-5085b43 ([062f6e7](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/062f6e7))
+- 解决发包后的类型提示问题 ([fac8f95](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/fac8f95))
+- **release:** V0.0.2 ([2d9c4a8](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/2d9c4a8))
+
+### ❤️ Contributors
+
+- 半山Alec <627649674@qq.com>
+
 ## v0.0.2
 
 [compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.0.2-20241107-213530-5085b43...v0.0.2)

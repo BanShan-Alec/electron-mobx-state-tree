@@ -203,9 +203,9 @@ function createWindow() {...}
 app.whenReady().then(() => {
     createWindow();
     // Get StoreInstance (after intMST done)
-	const user$ = getStoreInstance(UserStore);
-    
-	// watch store change
+    const user$ = getStoreInstance(UserStore);
+
+    // watch store change
     reaction(
         () => user$.age,
         (newVal, oldVal) => {

@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v0.1.2
+
+[compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.1.1...v0.1.2)
+
+### 🚀 Enhancements
+
+- 弃用ElectronMSTMain全局变量，改为StoreManager的私有属性，增加安全性，优化逻辑 ([1666a6b](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/1666a6b))
+
+### 🩹 Fixes
+
+- 修复判断是否已经初始化，判断逻辑错误 ([9737829](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/9737829))
+
+### 📖 Documentation
+
+- 更新readme ([fc46f00](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/fc46f00))
+
+### 🏡 Chore
+
+- **release:** V0.1.1 ([87328ab](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/87328ab))
+
+### ❤️ Contributors
+
+- 半山Alec <627649674@qq.com>
+
 ## v0.1.1
 
 [compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.1.0...v0.1.1)

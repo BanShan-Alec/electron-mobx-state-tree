@@ -21,6 +21,7 @@ class StoreManager {
         this.storeObserverMap = new Map();
         this.storeInstanceMap = new Map();
         this.storeDestroyMap = new Map();
+        this.initialized = true;
 
         options.forEach(({ store, createStoreBefore = false, snapshot, observers }) => {
             // 等待注册
@@ -30,8 +31,6 @@ class StoreManager {
                 this.createStore(store, snapshot, { observers });
             }
         });
-
-        this.initialized = true;
     }
 
     static getInstanceByName(storeName: string) {

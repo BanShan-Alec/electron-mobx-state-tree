@@ -1,4 +1,5 @@
 import { createStore } from 'electron-mst';
+// import { createStore } from '../../lib';
 import { types } from 'mobx-state-tree';
 import { UserStore } from './user';
 

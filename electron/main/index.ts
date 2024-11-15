@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import os from 'node:os';
 import { getStoreInstance, initMST } from 'electron-mst/main';
+// import { getStoreInstance, initMST } from '../../lib/main';
 import { autorun, reaction } from 'mobx';
 import { HomeStore, HomeStoreSnapshot } from '../../src/store/home';
 import { UserStore } from '../../src/store/user';

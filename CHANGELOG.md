@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.1.3
+
+[compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.1.2...v0.1.3)
+
+### 🩹 Fixes
+
+- 修复判断是否已经初始化，判断逻辑错误 ([9737829](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/9737829))
+- 修复判断是否已经初始化，判断逻辑错误 ([6842e1c](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/6842e1c))
+
+### 🏡 Chore
+
+- **release:** V0.1.2 ([a16c293](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/a16c293))
+
+### ❤️ Contributors
+
+- 半山Alec <627649674@qq.com>
+
 ## v0.1.2
 
 [compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.1.1...v0.1.2)

@@ -115,7 +115,7 @@ initMST([
 ]);
 ```
 
-#### Step3: use storeInstance in renderer
+#### Step3: use Store Instance in renderer
 
 ```tsx
 // src/App.tsx
@@ -179,11 +179,13 @@ Step4: new another window to view the user$
 #### Use In Main Process
 
 > Base on the `basic Example`，you just need to change the `step2`
+>
+> `createStoreBefore: true` is the key flag.
 
 ```ts
 // electron/main/index.ts
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
-import { initMST, getStoreInstance } from 'electron-mst/main';
+import { initMST, getStore Instance } from 'electron-mst/main';
 import { UserStore } from '@/shared/store/user';
 import { autorun, reaction } from 'mobx';
 
@@ -202,8 +204,8 @@ function createWindow() {...}
 
 app.whenReady().then(() => {
     createWindow();
-    // Get StoreInstance (after intMST done)
-    const user$ = getStoreInstance(UserStore);
+    // Get Store Instance (after intMST done)
+    const user$ = getStore Instance(UserStore);
 
     // watch store change
     reaction(
@@ -226,8 +228,41 @@ app.whenReady().then(() => {
 
 ## 🎯Realize & Design
 
-TODO
+``` mermaid
+graph
+    subgraph Main Process
+        M_Store1[Store Instance1]
+        M_Store2[Store Instance2]
+        M_Store3[Store3]
+        StoreManager
+    end
+
+    subgraph RendererA
+        RA_Store1_Proxy[[Store Instance1-Proxy]]
+        RA_Bridge[Electron MST Bridge]
+    end
+
+    subgraph RendererB
+        RB_Store1_Proxy[[Store Instance1-Proxy]]
+        RB_Store2_Proxy[[Store Instance2-Proxy]]
+        RB_Bridge[Electron MST Bridge]
+    end
+
+    StoreManager -.- M_Store1
+    StoreManager -.- M_Store2
+    StoreManager -.- M_Store3
+    M_Store1 <-->|IPC| RA_Bridge
+    RA_Bridge <-.-> RA_Store1_Proxy
+    M_Store1 <-->|IPC| RB_Bridge
+    M_Store2 <-->|IPC| RB_Bridge
+    RB_Bridge <-.-> RB_Store1_Proxy
+    RB_Bridge <-.-> RB_Store2_Proxy
+    Client --->|User Operation| RB_Store2_Proxy
+```
 
 ## ❔ FAQ
 
-TODO
+### Q1: Can I create a Store multiple times?
+
+A1: No! Please make sure your Store create juse one time. Because `electron-mst` strongly dependent on Store’s name.
+So the Store’s name cannot be repeated or empty.

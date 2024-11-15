@@ -163,7 +163,7 @@ export const destroyStoreByName = (storeName: string) => {
 };
 
 export const getStoreInstance = <T extends IModelType<any, any>>(store: T) => {
-    return StoreManager.getInstanceByName(store.name) as T['Type'] | undefined;
+    return StoreManager.getInstanceByName(store.name) as T['Type'];
 };
 
 export const getStoreInstanceByName = (storeName: string) => {

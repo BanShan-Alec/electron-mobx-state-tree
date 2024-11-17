@@ -45,6 +45,8 @@ const initStore = async (storeName: string, storeInstance: any) => {
     if (snapshot) applySnapshot(storeInstance, snapshot);
 
     const offPatchListener = window.ElectronMST.onPatchChange(storeName, (patch: any) => {
+        // TODO DEBUG
+        // console.log(`[onPatchChange] ${storeName}`, patch);
         applyPatch(storeInstance, patch);
     });
     window.addEventListener('beforeunload', () => {

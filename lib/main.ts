@@ -13,7 +13,7 @@ class MSTStore {
     store: IAnyModelType;
     observers: WebContents[] = [];
     storeInstance: IAnyStateTreeNode = null;
-    latestObserver?: WebContents;
+    latestPatcher?: WebContents;
     destroy: () => void = () => void 0;
 
     constructor(store: IAnyModelType) {
@@ -40,7 +40,7 @@ class MSTStore {
             ipcMain.off(`${IPC_CHANNEL_NAME}:callAction-${this.store.name}`, this.handleCallAction);
             this.observers = [];
             this.storeInstance = null;
-            this.latestObserver = undefined;
+            this.latestPatcher = undefined;
         };
 
         return this.storeInstance;
@@ -52,22 +52,23 @@ class MSTStore {
         // console.log('callAction', data.actionObj, event.sender.id);
 
         if (!data.actionObj) return;
-        this.latestObserver = event.sender;
+        this.latestPatcher = event.sender;
+        // applyAction后会马上触发onPatch是同步的
         applyAction(this.storeInstance, data.actionObj);
     };
     private handlePatch = (patch: any) => {
         // TODO DEBUG
-        // console.log('patch', patch, this.sourceId);
+        // console.log('patch', patch, this.latestPatcher.id);
 
         this.observers.forEach((observer) => {
             if (observer.isDestroyed()) return;
             // 避免重复发送Patch
-            if (observer === this.latestObserver) return;
+            if (observer === this.latestPatcher) return;
             observer.send(`${IPC_CHANNEL_NAME}:patch-${this.store.name}`, { patch });
         });
         // 去除已经销毁的 observer
         this.observers = this.observers.filter((observer) => !observer.isDestroyed());
-        this.latestObserver = undefined;
+        this.latestPatcher = undefined;
     };
 }
 

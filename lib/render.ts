@@ -24,6 +24,7 @@ const getStoreInstanceHandler = (storeName: string): ProxyHandler<any> => ({
             return (...args: any) => {
                 try {
                     const res = value.apply(this, args);
+                    // TODO FEATURE: 在同一事件循环中，合并多个相同path的action
                     window.ElectronMST.callAction(storeName, {
                         name: key as string,
                         path: getPath(target),
@@ -45,6 +46,8 @@ const initStore = async (storeName: string, storeInstance: any) => {
     if (snapshot) applySnapshot(storeInstance, snapshot);
 
     const offPatchListener = window.ElectronMST.onPatchChange(storeName, (patch: any) => {
+        // TODO DEBUG
+        // console.log(`[onPatchChange] ${storeName}`, patch);
         applyPatch(storeInstance, patch);
     });
     window.addEventListener('beforeunload', () => {

@@ -1,4 +1,4 @@
-import { ipcMain, type WebContents } from 'electron';
+import { ipcMain, IpcMainEvent, type WebContents } from 'electron';
 import { IPC_CHANNEL_NAME, isRenderer } from '.';
 import { applyAction, getSnapshot, IAnyModelType, IAnyStateTreeNode, IModelType, onPatch } from 'mobx-state-tree';
 
@@ -9,149 +9,176 @@ export interface InitStoreOptionsType {
     createStoreBefore?: boolean;
 }
 
-class StoreManager {
-    static initialized = false;
-    private static storeMap: Map<string, IAnyModelType>;
-    private static storeObserverMap: Map<string, WebContents[]>;
-    private static storeInstanceMap: Map<string, IAnyStateTreeNode>;
-    private static storeDestroyMap: Map<string, () => void>;
+class MSTStore {
+    store: IAnyModelType;
+    observers: WebContents[] = [];
+    storeInstance: IAnyStateTreeNode = null;
+    latestPatcher?: WebContents;
+    destroy: () => void = () => void 0;
 
-    static init(options: InitStoreOptionsType[]) {
-        this.storeMap = new Map();
-        this.storeObserverMap = new Map();
-        this.storeInstanceMap = new Map();
-        this.storeDestroyMap = new Map();
-        this.initialized = true;
-
-        options.forEach(({ store, createStoreBefore = false, snapshot, observers }) => {
-            // 等待注册
-            this.storeMap.set(store.name, store);
-            // 预先创建，不等待注册（用于主进程也消费Store实例的场景）
-            if (createStoreBefore) {
-                this.createStore(store, snapshot, { observers });
-            }
-        });
+    constructor(store: IAnyModelType) {
+        this.store = store;
     }
 
-    static getInstanceByName(storeName: string) {
-        return this.storeInstanceMap.get(storeName);
-    }
-
-    static getStoreByName(storeName: string) {
-        return this.storeMap.get(storeName);
-    }
-
-    static destroyStoreByName(storeName: string) {
-        const destroy = this.storeDestroyMap.get(storeName);
-        if (typeof destroy === 'function') destroy();
-    }
-
-    static addObserver(storeName: string, observer: WebContents) {
-        const observers = this.storeObserverMap.get(storeName);
-        if (typeof observers === 'undefined') return;
-
-        this.storeObserverMap.set(storeName, [...observers, observer]);
-    }
-
-    static createStore<T extends IModelType<any, any>>(
+    create<T extends IModelType<any, any>>(
         store: T,
         snapshot?: Parameters<T['create']>[0],
         options?: {
             observers?: WebContents[];
         }
-    ) {
+    ): T['Type'] {
+        const { observers } = options || {};
+        this.storeInstance = store.create(snapshot);
+        // 保存观察者
+        this.observers = observers || [];
+        // 注册事件
+        ipcMain.on(`${IPC_CHANNEL_NAME}:callAction-${store.name}`, this.handleCallAction);
+        const offPatchListener = onPatch(this.storeInstance, this.handlePatch);
+        // 销毁事件
+        this.destroy = () => {
+            offPatchListener();
+            ipcMain.off(`${IPC_CHANNEL_NAME}:callAction-${this.store.name}`, this.handleCallAction);
+            this.observers = [];
+            this.storeInstance = null;
+            this.latestPatcher = undefined;
+        };
+
+        return this.storeInstance;
+    }
+
+    // 事件处理
+    private handleCallAction = (event: IpcMainEvent, data: any) => {
+        // TODO DEBUG
+        // console.log('callAction', data.actionObj, event.sender.id);
+
+        if (!data.actionObj) return;
+        this.latestPatcher = event.sender;
+        // applyAction后会马上触发onPatch是同步的
+        applyAction(this.storeInstance, data.actionObj);
+    };
+    private handlePatch = (patch: any) => {
+        // TODO DEBUG
+        // console.log('patch', patch, this.latestPatcher.id);
+
+        this.observers.forEach((observer) => {
+            if (observer.isDestroyed()) return;
+            // 避免重复发送Patch
+            if (observer === this.latestPatcher) return;
+            observer.send(`${IPC_CHANNEL_NAME}:patch-${this.store.name}`, { patch });
+        });
+        // 去除已经销毁的 observer
+        this.observers = this.observers.filter((observer) => !observer.isDestroyed());
+        this.latestPatcher = undefined;
+    };
+}
+
+class StoreManager {
+    private static mstStoreMap: Map<string, MSTStore>;
+
+    static init(options: InitStoreOptionsType[]) {
+        this.mstStoreMap = new Map();
+
+        options.forEach(({ store, createStoreBefore = false, snapshot, observers }) => {
+            // 等待注册
+            this.mstStoreMap.set(store.name, new MSTStore(store));
+            // 预先创建，不等待注册（用于主进程也消费Store实例的场景）
+            if (createStoreBefore) {
+                this.createStore(store, snapshot, { observers });
+            }
+        });
+
+        ipcMain.handle(`${IPC_CHANNEL_NAME}:register`, this.handleRegister);
+        ipcMain.on(`${IPC_CHANNEL_NAME}:destroy`, this.handleDestroy);
+    }
+
+    static destroy() {
+        ipcMain.off(`${IPC_CHANNEL_NAME}:register`, this.handleRegister);
+        ipcMain.off(`${IPC_CHANNEL_NAME}:destroy`, this.handleDestroy);
+        this.mstStoreMap.forEach((mstStore) => {
+            mstStore.destroy();
+        });
+        this.mstStoreMap.clear();
+    }
+
+    static getInstanceByName(storeName: string) {
+        return this.mstStoreMap.get(storeName)?.storeInstance;
+    }
+
+    static getStoreByName(storeName: string) {
+        return this.mstStoreMap.get(storeName)?.store;
+    }
+
+    static destroyStoreByName(storeName: string) {
+        return this.mstStoreMap.get(storeName)?.destroy();
+    }
+
+    static addObservers(storeName: string, observer: WebContents[]) {
+        const mstStore = this.mstStoreMap.get(storeName);
+        if (!mstStore) return;
+        mstStore.observers.push(...observer);
+    }
+
+    static createStore: MSTStore['create'] = (store, snapshot, options) => {
         try {
             // 检查
             if (isRenderer()) {
                 throw new Error('This module should be used in main process!');
             }
-            if (!this.initialized) {
-                throw new Error('Please call initMST() before createStore()!');
+            const mstStore = this.mstStoreMap.get(store.name);
+
+            if (!mstStore) {
+                throw new Error(`Please add Store "${store.name}" to initMST() before createStore()!`);
             }
 
-            if (this.storeInstanceMap.has(store.name)) {
-                throw new Error('Store name duplication!');
+            if (mstStore.storeInstance) {
+                throw new Error(`Store name "${store.name}" duplication!`);
             }
 
             // 实例化
-            const storeInstance = store.create(snapshot);
-            this.storeObserverMap.set(store.name, options?.observers || []);
-            this.storeInstanceMap.set(store.name, storeInstance);
-
-            // 事件处理
-            const handleCallAction = (event: any, data: any) => {
-                // TODO DEBUG
-                // console.log('callAction', data.actionObj);
-
-                if (!data.actionObj) return;
-                applyAction(storeInstance, data.actionObj);
-            };
-            const handlePatch = (patch: any) => {
-                // TODO DEBUG
-                // console.log('patch', patch);
-
-                const observers = this.storeObserverMap.get(store.name);
-                if (typeof observers === 'undefined') return;
-
-                observers.forEach((observer) => {
-                    if (observer.isDestroyed()) return;
-                    observer.send(`${IPC_CHANNEL_NAME}:patch-${store.name}`, { patch });
-                });
-                // 去除已经销毁的 observer
-                this.storeObserverMap.set(
-                    store.name,
-                    observers.filter((observer) => !observer.isDestroyed())
-                );
-            };
-            const handleDestroy = () => {
-                ipcMain.off(`${IPC_CHANNEL_NAME}:callAction-${store.name}`, handleCallAction);
-                this.storeObserverMap.delete(store.name);
-                this.storeInstanceMap.delete(store.name);
-            };
-
-            // 注册事件
-            ipcMain.on(`${IPC_CHANNEL_NAME}:callAction-${store.name}`, handleCallAction);
-            onPatch(storeInstance, handlePatch);
-            this.storeDestroyMap.set(store.name, handleDestroy);
+            const storeInstance = mstStore.create(store, snapshot, options);
             // 返回实例
             return storeInstance;
         } catch (error: any) {
-            console.error(`[createStore error] ${error?.message}`);
+            error.message = `[Electron-MST error] ${error.message}`;
             throw error;
         }
-    }
-}
+    };
 
-export const initMST = (options: InitStoreOptionsType[]) => {
-    if (isRenderer()) throw new Error('This module should be used in main process!');
-
-    StoreManager.init(options);
-
-    ipcMain.handle(`${IPC_CHANNEL_NAME}:register`, async (event, data) => {
+    private static handleRegister = async (event: any, data: any) => {
         if (!data.storeName) throw new Error('Store name is required!');
         if (!data.snapshot) throw new Error('Store Snapshot is required!');
 
-        const store = StoreManager.getStoreByName(data.storeName);
-        const storeInstance = StoreManager.getInstanceByName(data.storeName);
-        if (!store) throw new Error('Store not found! Please add Store to initMST() first!');
+        const store = this.getStoreByName(data.storeName);
+        const storeInstance = this.getInstanceByName(data.storeName);
+        if (!store) throw new Error(`Store "${data.storeName}" not found! Please add Store to initMST() first!`);
 
         // 已经存在的 store实例 直接返回快照
         if (store && storeInstance) {
-            StoreManager.addObserver(data.storeName, event.sender);
+            this.addObservers(data.storeName, [event.sender]);
             const snapshot = getSnapshot(storeInstance);
             return snapshot;
         }
         // 不存在的则创建
-        StoreManager.createStore(store, data.snapshot, {
+        this.createStore(store, data.snapshot, {
             observers: [event.sender],
         });
         return null;
-    });
+    };
 
-    ipcMain.on(`${IPC_CHANNEL_NAME}:destroy`, (event, data) => {
+    private static handleDestroy = (event: any, data: any) => {
         if (!data.storeName) throw new Error('Store name is required!');
-        StoreManager.destroyStoreByName(data.storeName);
-    });
+        this.destroyStoreByName(data.storeName);
+    };
+}
+
+export const initMST = (options: InitStoreOptionsType[]) => {
+    if (isRenderer()) throw new Error('This module should be used in main process!');
+    StoreManager.init(options);
+};
+
+export const destroyMST = () => {
+    if (isRenderer()) throw new Error('This module should be used in main process!');
+    StoreManager.destroy();
 };
 
 export const destroyStore = (store: IAnyModelType) => {
@@ -163,7 +190,9 @@ export const destroyStoreByName = (storeName: string) => {
 };
 
 export const getStoreInstance = <T extends IModelType<any, any>>(store: T) => {
-    return StoreManager.getInstanceByName(store.name) as T['Type'];
+    const instance = StoreManager.getInstanceByName(store.name);
+    if (!instance) throw new Error(`Store "${store.name}" not found!`);
+    return instance as T['Type'];
 };
 
 export const getStoreInstanceByName = (storeName: string) => {

@@ -24,6 +24,7 @@ const getStoreInstanceHandler = (storeName: string): ProxyHandler<any> => ({
             return (...args: any) => {
                 try {
                     const res = value.apply(this, args);
+                    // TODO FEATURE: 在同一事件循环中，合并多个相同path的action
                     window.ElectronMST.callAction(storeName, {
                         name: key as string,
                         path: getPath(target),

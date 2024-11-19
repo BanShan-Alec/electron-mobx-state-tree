@@ -14,7 +14,7 @@ let App = (props: IProps) => {
     //变量声明、解构
     const {} = props;
     const { count, add, isEven, user } = home$;
-    const { age, updateAge } = user$;
+    const { age, updateAge, updateName } = user$;
     //组件状态
 
     //网络IO
@@ -31,6 +31,9 @@ let App = (props: IProps) => {
     useEffect(() => {
         postMessage({ payload: 'removeLoading' }, '*');
     }, []);
+    useEffect(() => {
+        console.log('count:', count);
+    }, [count]);
 
     //组件渲染
     return (
@@ -43,7 +46,18 @@ let App = (props: IProps) => {
             </div>
             <h1>Electron + Mobx State Tree</h1>
             <div className="card">
-                <button className={isEven ? 'text-green-400' : 'text-white'} onClick={() => add()}>
+                <button
+                    className={isEven ? 'text-green-400' : 'text-white'}
+                    onClick={() => {
+                        // React will merge the twice state update
+                        // but `electron-mst` will not merge the action
+                        add();
+                        add();
+                        // setTimeout(() => {
+                        //     add();
+                        // });
+                    }}
+                >
                     count is {count}
                 </button>
                 <p>
@@ -68,6 +82,7 @@ let App = (props: IProps) => {
                 <button
                     onClick={() => {
                         updateAge(age + 2);
+                        updateName('Name' + Math.random().toFixed(2));
                     }}
                 >
                     Update Another User

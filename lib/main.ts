@@ -13,8 +13,8 @@ class MSTStore {
     store: IAnyModelType;
     observers: WebContents[] = [];
     storeInstance: IAnyStateTreeNode = null;
+    latestObserver?: WebContents;
     destroy: () => void = () => void 0;
-    sourceId?: number;
 
     constructor(store: IAnyModelType) {
         this.store = store;
@@ -33,9 +33,14 @@ class MSTStore {
         this.observers = observers || [];
         // 注册事件
         ipcMain.on(`${IPC_CHANNEL_NAME}:callAction-${store.name}`, this.handleCallAction);
-        onPatch(this.storeInstance, this.handlePatch);
+        const offPatchListener = onPatch(this.storeInstance, this.handlePatch);
+        // 销毁事件
         this.destroy = () => {
+            offPatchListener();
             ipcMain.off(`${IPC_CHANNEL_NAME}:callAction-${this.store.name}`, this.handleCallAction);
+            this.observers = [];
+            this.storeInstance = null;
+            this.latestObserver = undefined;
         };
 
         return this.storeInstance;
@@ -47,7 +52,7 @@ class MSTStore {
         // console.log('callAction', data.actionObj, event.sender.id);
 
         if (!data.actionObj) return;
-        this.sourceId = event.sender.id;
+        this.latestObserver = event.sender;
         applyAction(this.storeInstance, data.actionObj);
     };
     private handlePatch = (patch: any) => {
@@ -56,12 +61,13 @@ class MSTStore {
 
         this.observers.forEach((observer) => {
             if (observer.isDestroyed()) return;
-            if (observer.id === this.sourceId) return;
+            // 避免重复发送Patch
+            if (observer === this.latestObserver) return;
             observer.send(`${IPC_CHANNEL_NAME}:patch-${this.store.name}`, { patch });
         });
         // 去除已经销毁的 observer
         this.observers = this.observers.filter((observer) => !observer.isDestroyed());
-        this.sourceId = undefined;
+        this.latestObserver = undefined;
     };
 }
 
@@ -87,6 +93,10 @@ class StoreManager {
     static destroy() {
         ipcMain.off(`${IPC_CHANNEL_NAME}:register`, this.handleRegister);
         ipcMain.off(`${IPC_CHANNEL_NAME}:destroy`, this.handleDestroy);
+        this.mstStoreMap.forEach((mstStore) => {
+            mstStore.destroy();
+        });
+        this.mstStoreMap.clear();
     }
 
     static getInstanceByName(storeName: string) {
@@ -163,6 +173,11 @@ class StoreManager {
 export const initMST = (options: InitStoreOptionsType[]) => {
     if (isRenderer()) throw new Error('This module should be used in main process!');
     StoreManager.init(options);
+};
+
+export const destroyMST = () => {
+    if (isRenderer()) throw new Error('This module should be used in main process!');
+    StoreManager.destroy();
 };
 
 export const destroyStore = (store: IAnyModelType) => {

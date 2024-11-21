@@ -15,11 +15,8 @@ initMST([
     {
         store: HomeStore,
         snapshot: HomeStoreSnapshot,
-        createStoreBefore: true,
     },
-    {
-        store: UserStore,
-    },
+    UserStore,
 ]);
 
 // The built directory structure

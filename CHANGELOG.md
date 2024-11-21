@@ -1,6 +1,34 @@
 # Changelog
 
 
+## v0.3.1
+
+[compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.3.0...v0.3.1)
+
+## v0.3.0
+
+[compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.2.1...v0.3.0)
+
+### 🚀 Enhancements
+
+- 完成MSTStore的实现；修复渲染进程状态重复被applyPatch的问题 ([ea26854](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/ea26854))
+- 完善销毁MSTStore逻辑 ([a1a98d3](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/a1a98d3))
+- 优化变量命名 ([a6003f3](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/a6003f3))
+- 更新demo，补充备注 ([6c3dbb0](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/6c3dbb0))
+- 优化initMST参数，去除createStoreBefore ([ee141d7](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/ee141d7))
+
+### 📖 Documentation
+
+- 更新README ([16d8d69](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/16d8d69))
+
+### 🏡 Chore
+
+- **release:** V0.2.1 ([c7ca6e9](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/c7ca6e9))
+
+### ❤️ Contributors
+
+- 半山Alec <627649674@qq.com>
+
 ## v0.2.1
 
 [compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.2.0...v0.2.1)

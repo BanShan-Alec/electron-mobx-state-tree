@@ -6,18 +6,19 @@ export interface InitStoreOptionsType {
     store: IAnyModelType;
     snapshot?: any;
     observers?: WebContents[];
-    createStoreBefore?: boolean;
 }
 
 class MSTStore {
     store: IAnyModelType;
+    defaultSnapshot: any;
     observers: WebContents[] = [];
     storeInstance: IAnyStateTreeNode = null;
     latestPatcher?: WebContents;
     destroy: () => void = () => void 0;
 
-    constructor(store: IAnyModelType) {
+    constructor(store: IAnyModelType, snapshot?: any) {
         this.store = store;
+        this.defaultSnapshot = snapshot;
     }
 
     create<T extends IModelType<any, any>>(
@@ -78,13 +79,9 @@ class StoreManager {
     static init(options: InitStoreOptionsType[]) {
         this.mstStoreMap = new Map();
 
-        options.forEach(({ store, createStoreBefore = false, snapshot, observers }) => {
-            // 等待注册
-            this.mstStoreMap.set(store.name, new MSTStore(store));
-            // 预先创建，不等待注册（用于主进程也消费Store实例的场景）
-            if (createStoreBefore) {
-                this.createStore(store, snapshot, { observers });
-            }
+        options.forEach(({ store, snapshot, observers }) => {
+            // 等待渲染进程请求注册 or 主进程消费Store实例
+            this.mstStoreMap.set(store.name, new MSTStore(store, snapshot));
         });
 
         ipcMain.handle(`${IPC_CHANNEL_NAME}:register`, this.handleRegister);
@@ -135,7 +132,8 @@ class StoreManager {
             }
 
             // 实例化
-            const storeInstance = mstStore.create(store, snapshot, options);
+            const _snapshot = snapshot || mstStore.defaultSnapshot;
+            const storeInstance = mstStore.create(store, _snapshot, options);
             // 返回实例
             return storeInstance;
         } catch (error: any) {
@@ -171,9 +169,15 @@ class StoreManager {
     };
 }
 
-export const initMST = (options: InitStoreOptionsType[]) => {
+export const initMST = (options: Array<IAnyModelType | InitStoreOptionsType>) => {
     if (isRenderer()) throw new Error('This module should be used in main process!');
-    StoreManager.init(options);
+    const _options = options.map((option) => {
+        if (option instanceof Object && Object.keys(option).find((key) => key === 'store')) {
+            return option as InitStoreOptionsType;
+        }
+        return { store: option } as InitStoreOptionsType;
+    });
+    StoreManager.init(_options);
 };
 
 export const destroyMST = () => {
@@ -190,8 +194,11 @@ export const destroyStoreByName = (storeName: string) => {
 };
 
 export const getStoreInstance = <T extends IModelType<any, any>>(store: T) => {
-    const instance = StoreManager.getInstanceByName(store.name);
-    if (!instance) throw new Error(`Store "${store.name}" not found!`);
+    if (!StoreManager.getStoreByName(store.name)) {
+        throw new Error(`Store "${store.name}" not found! Please add Store to initMST() first!`);
+    }
+
+    const instance = StoreManager.getInstanceByName(store.name) || StoreManager.createStore(store);
     return instance as T['Type'];
 };
 

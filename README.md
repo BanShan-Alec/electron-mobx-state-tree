@@ -108,11 +108,7 @@ export const user$ = createStore(UserStore, {
 import { initMST } from 'electron-mst/main';
 import { UserStore } from '@/shared/store/user';
 
-initMST([
-    {
-        store: UserStore,
-    },
-]);
+initMST([UserStore]);
 ```
 
 #### Step3: use Store Instance in renderer
@@ -178,9 +174,9 @@ Step4: new another window to view the user$
 
 #### Use In Main Process
 
-> Base on the `basic Example`，you just need to change the `step2`
+> Base on the `basic Example`，you just need to change the `step2`.
 >
-> `createStoreBefore: true` is the key flag.
+> The argument `snapshot` should be the same as Renderer createStore’s snapshot.
 
 ```ts
 // electron/main/index.ts
@@ -196,7 +192,6 @@ initMST([
             name: 'Jack',
             age: 18,
         },
-        createStoreBefore: true,
     },
 ]);
 
@@ -205,9 +200,9 @@ function createWindow() {...}
 app.whenReady().then(() => {
     createWindow();
     // Get Store Instance (after intMST done)
-    const user$ = getStore Instance(UserStore);
+    const user$ = getStoreInstance(UserStore);
 
-    // watch store change
+    // watch Store Instance change
     reaction(
         () => user$.age,
         (newVal, oldVal) => {
@@ -262,7 +257,6 @@ graph
 
 ## ❔ FAQ
 
-### Q1: Can I create a Store multiple times?
+### Q1: Can I create multiple Store with same name?
 
-A1: No! Please make sure your Store create juse one time. Because `electron-mst` strongly dependent on Store’s name.
-So the Store’s name cannot be repeated or empty.
+A1: No! Please make sure your Store has a **unique name**. Because `electron-mst` strongly dependent on Store’s name. The Store’s name cannot be repeated or empty.

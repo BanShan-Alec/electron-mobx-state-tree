@@ -1,4 +1,3 @@
-import { isRenderer } from '.';
 import {
     applyPatch,
     applySnapshot,
@@ -8,6 +7,8 @@ import {
     IModelType,
     isModelType,
 } from 'mobx-state-tree';
+
+import { isRenderer } from './shared';
 
 const getStoreInstanceHandler = (storeName: string): ProxyHandler<any> => ({
     get(target, key, receiver) {

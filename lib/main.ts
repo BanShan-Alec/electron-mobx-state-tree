@@ -1,6 +1,7 @@
-import { ipcMain, IpcMainEvent, type WebContents } from 'electron';
-import { IPC_CHANNEL_NAME, isRenderer } from '.';
+import { ipcMain, type IpcMainEvent, type WebContents } from 'electron';
 import { applyAction, getSnapshot, IAnyModelType, IAnyStateTreeNode, IModelType, onPatch } from 'mobx-state-tree';
+
+import { IPC_CHANNEL_NAME, isRenderer } from './shared';
 
 export interface InitStoreOptionsType {
     store: IAnyModelType;

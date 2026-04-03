@@ -1,21 +1,8 @@
+import type { IModelType } from 'mobx-state-tree';
+
 import { createStore as createStoreRender } from './render';
-import { IModelType } from 'mobx-state-tree';
-
-export const IPC_CHANNEL_NAME = '__ElectronMST';
-export const PRELOAD_BRIDGE_NAME = 'ElectronMST';
-
-export function isRenderer() {
-    // running in a web browser
-    if (typeof process === 'undefined') return true;
-
-    // node-integration is disabled
-    if (!process) return true;
-
-    // We're in node.js somehow
-    if (!process.type) return false;
-
-    return process.type === 'renderer';
-}
+export { IPC_CHANNEL_NAME, PRELOAD_BRIDGE_NAME, isRenderer } from './shared';
+import { isRenderer } from './shared';
 
 export const createStore = <T extends IModelType<any, any>>(
     store: T,

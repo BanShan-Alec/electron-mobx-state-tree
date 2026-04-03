@@ -1,6 +1,7 @@
-import { ipcRenderer, contextBridge, IpcRendererEvent } from 'electron';
-import { IPC_CHANNEL_NAME } from '.';
-import { ISerializedActionCall } from 'mobx-state-tree';
+import { ipcRenderer, contextBridge, type IpcRendererEvent } from 'electron';
+import type { ISerializedActionCall } from 'mobx-state-tree';
+
+import { IPC_CHANNEL_NAME, PRELOAD_BRIDGE_NAME } from './shared';
 
 const ElectronMST = {
     register: async (storeName: string, curSnapshot?: any) => {
@@ -34,7 +35,7 @@ type ElectronMSTType = typeof ElectronMST;
 export type { ElectronMSTType };
 export const exposeMSTBridge = () => {
     try {
-        contextBridge.exposeInMainWorld('ElectronMST', ElectronMST);
+        contextBridge.exposeInMainWorld(PRELOAD_BRIDGE_NAME, ElectronMST);
     } catch (error) {
         window.ElectronMST = ElectronMST;
     }

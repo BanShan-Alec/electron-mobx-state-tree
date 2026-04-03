@@ -37,6 +37,6 @@ export const exposeMSTBridge = () => {
     try {
         contextBridge.exposeInMainWorld(PRELOAD_BRIDGE_NAME, ElectronMST);
     } catch (error) {
-        window.ElectronMST = ElectronMST;
+        (window as any)[PRELOAD_BRIDGE_NAME] = ElectronMST;
     }
 };

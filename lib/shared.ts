@@ -1,5 +1,4 @@
 export const IPC_CHANNEL_NAME = '__ElectronMST';
-export const PRELOAD_BRIDGE_NAME = 'ElectronMST';
 
 export function isRenderer() {
     // running in a web browser

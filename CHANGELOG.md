@@ -1,6 +1,34 @@
 # Changelog
 
 
+## v0.3.2
+
+[compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.3.0...v0.3.2)
+
+### 🚀 Enhancements
+
+- 优化initMST参数，去除createStoreBefore ([ee141d7](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/ee141d7))
+
+### 💅 Refactors
+
+- Consolidate shared exports and improve import structure, fix the bundle size problem ([0040598](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/0040598))
+- Use hardcoded 'ElectronMST'  instead of PRELOAD_BRIDGE_NAME constant ([6fa2137](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/6fa2137))
+
+### 📖 Documentation
+
+- 更新README ([16d8d69](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/16d8d69))
+
+### 🏡 Chore
+
+- **release:** V0.3.0 ([ddf6aa3](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/ddf6aa3))
+- **release:** V0.3.1 ([672d78b](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/672d78b))
+- 更新demo ([202412e](https://github.com/BanShan-Alec/electron-mobx-state-tree/commit/202412e))
+
+### ❤️ Contributors
+
+- Wengzehua ([@BanShan-Alec](https://github.com/BanShan-Alec))
+- 半山Alec <627649674@qq.com>
+
 ## v0.3.1
 
 [compare changes](https://github.com/BanShan-Alec/electron-mobx-state-tree/compare/v0.3.0...v0.3.1)
